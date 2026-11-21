@@ -1,0 +1,28 @@
+{
+  "services": {
+    "web": {
+      "root": ".",
+      "framework": "create-react-app"
+    },
+    "api": {
+      "root": "server",
+      "framework": "express",
+      "buildCommand": "npm install",
+      "startCommand": "npm start"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
+  ]
+}
