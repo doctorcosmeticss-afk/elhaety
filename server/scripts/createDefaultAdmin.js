@@ -10,18 +10,18 @@ const createDefaultAdmin = async () => {
     console.log('✅ Connected to MongoDB');
 
     // Check if admin exists
-    const existingAdmin = await Admin.findOne({ email: 'admin@elhawty.com' });
+    const existingAdmin = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
 
     if (existingAdmin) {
-      console.log('ℹ️  Default admin already exists');
+      console.log('ℹ️  Admin already exists');
       process.exit(0);
     }
 
     // Create default admin
-    const hashedPassword = await bcrypt.hash('admin123456', 10);
+    const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
 
     const admin = new Admin({
-      email: 'admin@elhawty.com',
+      email: process.env.ADMIN_EMAIL,
       password: hashedPassword,
       name: 'Admin',
       role: 'admin'
@@ -29,13 +29,13 @@ const createDefaultAdmin = async () => {
 
     await admin.save();
 
-    console.log('✅ Default admin created successfully');
-    console.log('📧 Email: admin@elhawty.com');
-    console.log('🔑 Password: admin123456');
+    console.log('✅ Admin created successfully');
+    console.log('📧 Email:', process.env.ADMIN_EMAIL);
+    console.log('🔑 Password:', process.env.ADMIN_PASSWORD);
 
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error creating default admin:', error);
+    console.error('❌ Error creating admin:', error);
     process.exit(1);
   }
 };

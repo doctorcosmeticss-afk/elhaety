@@ -4,7 +4,49 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 const router = express.Router();
 
-// Login endpoint
+// Login endpoint - handles both /api/auth and /api/auth/login
+router.post('/', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if admin exists
+    const admin = await Admin.findOne({ email: email.toLowerCase() });
+
+    if (!admin) {
+      return res.status(401).json({ message: 'بيانات الدخول غير صحيحة' });
+    }
+
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'بيانات الدخول غير صحيحة' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email, role: admin.role },
+      process.env.JWT_SECRET || 'elhawty-secret-key-2024',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      message: 'تم تسجيل الدخول بنجاح',
+      token,
+      user: { 
+        id: admin._id,
+        email: admin.email, 
+        name: admin.name,
+        role: admin.role 
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'خطأ في الخادم' });
+  }
+});
+
+// Login endpoint - alias for compatibility
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
